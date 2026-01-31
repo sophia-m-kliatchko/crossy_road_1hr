@@ -218,39 +218,85 @@ class Player:
         shadow_surf = pygame.Surface((TILE_SIZE - 10, 10), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow_surf, (0, 0, 0, 50), (0, 0, TILE_SIZE - 10, 10))
         screen.blit(shadow_surf, (screen_x + 5, screen_y + TILE_SIZE - 12))
-        
-        # Body
-        body_rect = pygame.Rect(screen_x + 10, draw_y + 15, 30, 30)
-        pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=5)
-        pygame.draw.rect(screen, (200, 200, 200), body_rect, 2, border_radius=5)
-        
-        # Head
-        head_rect = pygame.Rect(screen_x + 15, draw_y + 5, 20, 18)
+
+        # --- Crossy-Road-ish chicken avatar (blocky voxels in 2D) ---
+        # We draw a "body cube" + "head cube" + iconic comb/wattle/beak/feet.
+        # Colors are taken from the Crossy Road wiki description: white body, red comb/wattle, orange beak/feet.
+
+        # Slight hop affects vertical placement of body/head only (keeps feet closer to ground for readability)
+        body_y = draw_y + 16
+        head_y = draw_y + 5
+
+        # Shadow already drawn above
+
+        # Feet (big, chunky)
+        foot_y = screen_y + TILE_SIZE - 11 - int(self.hop_height * 0.15)
+        pygame.draw.rect(screen, COLORS['chicken_beak'], (screen_x + 13, foot_y, 10, 7), border_radius=2)
+        pygame.draw.rect(screen, COLORS['chicken_beak'], (screen_x + 27, foot_y, 10, 7), border_radius=2)
+        # Toe hints
+        pygame.draw.rect(screen, (220, 130, 0), (screen_x + 13, foot_y + 5, 10, 2))
+        pygame.draw.rect(screen, (220, 130, 0), (screen_x + 27, foot_y + 5, 10, 2))
+
+        # Body cube
+        body_rect = pygame.Rect(screen_x + 10, body_y, 30, 26)
+        pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=4)
+        # Voxel-style shading: top highlight + side shade
+        pygame.draw.rect(screen, (245, 245, 245), (body_rect.x + 2, body_rect.y + 2, body_rect.w - 4, 8), border_radius=3)
+        pygame.draw.rect(screen, (225, 225, 225), (body_rect.x + body_rect.w - 8, body_rect.y + 2, 6, body_rect.h - 4), border_radius=3)
+        pygame.draw.rect(screen, (205, 205, 205), body_rect, 2, border_radius=4)
+
+        # Little wings as side panels
+        pygame.draw.rect(screen, (238, 238, 238), (screen_x + 8, body_y + 9, 6, 12), border_radius=2)
+        pygame.draw.rect(screen, (238, 238, 238), (screen_x + 36, body_y + 9, 6, 12), border_radius=2)
+
+        # Head cube
+        head_rect = pygame.Rect(screen_x + 16, head_y, 18, 14)
         pygame.draw.rect(screen, COLORS['chicken_body'], head_rect, border_radius=3)
-        
-        # Comb
-        comb_points = [(screen_x + 20, draw_y + 5), (screen_x + 25, draw_y),
-                       (screen_x + 30, draw_y + 5), (screen_x + 35, draw_y),
-                       (screen_x + 35, draw_y + 8), (screen_x + 20, draw_y + 8)]
-        pygame.draw.polygon(screen, COLORS['chicken_comb'], comb_points)
-        
-        # Beak
-        if self.direction == 0:
-            beak_points = [(screen_x + 23, draw_y + 8), (screen_x + 27, draw_y + 8), (screen_x + 25, draw_y + 3)]
-        elif self.direction == 1:
-            beak_points = [(screen_x + 35, draw_y + 10), (screen_x + 35, draw_y + 14), (screen_x + 42, draw_y + 12)]
-        elif self.direction == 2:
-            beak_points = [(screen_x + 23, draw_y + 20), (screen_x + 27, draw_y + 20), (screen_x + 25, draw_y + 25)]
-        else:
-            beak_points = [(screen_x + 15, draw_y + 10), (screen_x + 15, draw_y + 14), (screen_x + 8, draw_y + 12)]
-        pygame.draw.polygon(screen, COLORS['chicken_beak'], beak_points)
-        
-        # Eyes
-        pygame.draw.circle(screen, (0, 0, 0), (screen_x + 18, draw_y + 12), 3)
-        pygame.draw.circle(screen, (0, 0, 0), (screen_x + 32, draw_y + 12), 3)
-        pygame.draw.circle(screen, (255, 255, 255), (screen_x + 19, draw_y + 11), 1)
-        pygame.draw.circle(screen, (255, 255, 255), (screen_x + 33, draw_y + 11), 1)
-    
+        pygame.draw.rect(screen, (205, 205, 205), head_rect, 2, border_radius=3)
+        pygame.draw.rect(screen, (245, 245, 245), (head_rect.x + 2, head_rect.y + 2, head_rect.w - 4, 5), border_radius=2)
+
+        # Comb (red blocks) on top of head (iconic)
+        # Three little "voxels" for comb
+        pygame.draw.rect(screen, COLORS['chicken_comb'], (head_rect.x + 2, head_rect.y - 5, 5, 5), border_radius=1)
+        pygame.draw.rect(screen, COLORS['chicken_comb'], (head_rect.x + 7, head_rect.y - 7, 5, 7), border_radius=1)
+        pygame.draw.rect(screen, COLORS['chicken_comb'], (head_rect.x + 12, head_rect.y - 5, 4, 5), border_radius=1)
+
+        # Face features depend on direction (beak + eyes + wattle)
+        eye_white = (255, 255, 255)
+        eye_black = (20, 20, 20)
+        beak_col = COLORS['chicken_beak']  # orange
+        wattle_col = COLORS['chicken_comb']  # red
+
+        if self.direction == 0:  # up (back view)
+            # small tail block
+            pygame.draw.rect(screen, (235, 235, 235), (screen_x + 19, body_y + 20, 12, 6), border_radius=2)
+        elif self.direction == 2:  # down (front view)
+            # Eyes (big dots)
+            pygame.draw.circle(screen, eye_white, (head_rect.x + 5, head_rect.y + 7), 3)
+            pygame.draw.circle(screen, eye_white, (head_rect.x + 13, head_rect.y + 7), 3)
+            pygame.draw.circle(screen, eye_black, (head_rect.x + 5, head_rect.y + 7), 1)
+            pygame.draw.circle(screen, eye_black, (head_rect.x + 13, head_rect.y + 7), 1)
+            # Beak (center)
+            pygame.draw.rect(screen, beak_col, (head_rect.x + 6, head_rect.y + 10, 6, 4), border_radius=1)
+            # Wattle
+            pygame.draw.rect(screen, wattle_col, (head_rect.x + 7, head_rect.y + 14, 4, 4), border_radius=1)
+        elif self.direction == 1:  # right
+            # Eye
+            pygame.draw.circle(screen, eye_white, (head_rect.x + 12, head_rect.y + 7), 3)
+            pygame.draw.circle(screen, eye_black, (head_rect.x + 12, head_rect.y + 7), 1)
+            # Beak protruding right
+            pygame.draw.rect(screen, beak_col, (head_rect.right - 2, head_rect.y + 7, 8, 4), border_radius=1)
+            # Wattle
+            pygame.draw.rect(screen, wattle_col, (head_rect.x + 9, head_rect.y + 12, 4, 4), border_radius=1)
+            # Tail block
+            pygame.draw.rect(screen, (235, 235, 235), (screen_x + 9, body_y + 12, 6, 10), border_radius=2)
+        else:  # left
+            pygame.draw.circle(screen, eye_white, (head_rect.x + 6, head_rect.y + 7), 3)
+            pygame.draw.circle(screen, eye_black, (head_rect.x + 6, head_rect.y + 7), 1)
+            pygame.draw.rect(screen, beak_col, (head_rect.left - 6, head_rect.y + 7, 8, 4), border_radius=1)
+            pygame.draw.rect(screen, wattle_col, (head_rect.x + 5, head_rect.y + 12, 4, 4), border_radius=1)
+            pygame.draw.rect(screen, (235, 235, 235), (screen_x + 35, body_y + 12, 6, 10), border_radius=2)
+
     def _draw_death(self, screen, screen_x, screen_y):
         if self.death_type == 'squash':
             progress = min(self.death_animation * 3, 1)
@@ -312,42 +358,80 @@ class Vehicle:
             self._draw_train(screen, self.x, screen_y)
     
     def _draw_car(self, screen, x, y):
+        facing_right = self.speed > 0
         shadow = pygame.Surface((TILE_SIZE - 10, 10), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow, (0, 0, 0, 40), (0, 0, TILE_SIZE - 10, 10))
         screen.blit(shadow, (x + 5, y + TILE_SIZE - 8))
         body_rect = pygame.Rect(x + 5, y + 12, TILE_SIZE - 10, TILE_SIZE - 20)
         pygame.draw.rect(screen, self.color, body_rect, border_radius=5)
-        roof_rect = pygame.Rect(x + 12, y + 8, TILE_SIZE - 24, 15)
         darker_color = tuple(max(0, c - 40) for c in self.color)
-        pygame.draw.rect(screen, darker_color, roof_rect, border_radius=3)
-        pygame.draw.rect(screen, (150, 200, 255), (x + 14, y + 10, TILE_SIZE - 28, 10), border_radius=2)
+        # Roof positioned based on direction (offset toward back)
+        if facing_right:
+            roof_rect = pygame.Rect(x + 8, y + 8, TILE_SIZE - 20, 15)
+            pygame.draw.rect(screen, darker_color, roof_rect, border_radius=3)
+            pygame.draw.rect(screen, (150, 200, 255), (x + 10, y + 10, TILE_SIZE - 24, 10), border_radius=2)
+            # Headlights on right side
+            pygame.draw.circle(screen, (255, 255, 200), (int(x + TILE_SIZE - 8), int(y + 18)), 3)
+            pygame.draw.circle(screen, (255, 255, 200), (int(x + TILE_SIZE - 8), int(y + 28)), 3)
+        else:
+            roof_rect = pygame.Rect(x + 12, y + 8, TILE_SIZE - 20, 15)
+            pygame.draw.rect(screen, darker_color, roof_rect, border_radius=3)
+            pygame.draw.rect(screen, (150, 200, 255), (x + 14, y + 10, TILE_SIZE - 24, 10), border_radius=2)
+            # Headlights on left side
+            pygame.draw.circle(screen, (255, 255, 200), (int(x + 8), int(y + 18)), 3)
+            pygame.draw.circle(screen, (255, 255, 200), (int(x + 8), int(y + 28)), 3)
         pygame.draw.circle(screen, (30, 30, 30), (int(x + 12), int(y + TILE_SIZE - 8)), 6)
         pygame.draw.circle(screen, (30, 30, 30), (int(x + TILE_SIZE - 12), int(y + TILE_SIZE - 8)), 6)
     
     def _draw_truck(self, screen, x, y):
+        facing_right = self.speed > 0
         shadow = pygame.Surface((TILE_SIZE * 2 - 10, 10), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow, (0, 0, 0, 40), (0, 0, TILE_SIZE * 2 - 10, 10))
         screen.blit(shadow, (x + 5, y + TILE_SIZE - 8))
-        cargo_rect = pygame.Rect(x + 5, y + 8, TILE_SIZE + 20, TILE_SIZE - 15)
-        pygame.draw.rect(screen, self.color, cargo_rect, border_radius=3)
-        cab_rect = pygame.Rect(x + TILE_SIZE + 25, y + 12, 25, TILE_SIZE - 20)
-        pygame.draw.rect(screen, (80, 80, 90), cab_rect, border_radius=3)
-        pygame.draw.rect(screen, (150, 200, 255), (x + TILE_SIZE + 28, y + 14, 19, 12), border_radius=2)
+        if facing_right:
+            # Cargo on left, cab on right
+            cargo_rect = pygame.Rect(x + 5, y + 8, TILE_SIZE + 20, TILE_SIZE - 15)
+            pygame.draw.rect(screen, self.color, cargo_rect, border_radius=3)
+            cab_rect = pygame.Rect(x + TILE_SIZE + 25, y + 12, 25, TILE_SIZE - 20)
+            pygame.draw.rect(screen, (80, 80, 90), cab_rect, border_radius=3)
+            pygame.draw.rect(screen, (150, 200, 255), (x + TILE_SIZE + 28, y + 14, 19, 12), border_radius=2)
+            # Headlights
+            pygame.draw.circle(screen, (255, 255, 200), (int(x + TILE_SIZE * 2 - 8), int(y + 28)), 3)
+        else:
+            # Cab on left, cargo on right
+            cab_rect = pygame.Rect(x + 5, y + 12, 25, TILE_SIZE - 20)
+            pygame.draw.rect(screen, (80, 80, 90), cab_rect, border_radius=3)
+            pygame.draw.rect(screen, (150, 200, 255), (x + 8, y + 14, 19, 12), border_radius=2)
+            cargo_rect = pygame.Rect(x + 30, y + 8, TILE_SIZE + 20, TILE_SIZE - 15)
+            pygame.draw.rect(screen, self.color, cargo_rect, border_radius=3)
+            # Headlights
+            pygame.draw.circle(screen, (255, 255, 200), (int(x + 8), int(y + 28)), 3)
         for wx in [15, 45, TILE_SIZE + 35]:
             pygame.draw.circle(screen, (30, 30, 30), (int(x + wx), int(y + TILE_SIZE - 8)), 6)
     
     def _draw_train(self, screen, x, y):
+        facing_right = self.speed > 0
         for i in range(self.length):
             segment_x = x + i * TILE_SIZE
-            color = COLORS['train_front'] if i == 0 else COLORS['train']
+            # Engine is at front (first segment in direction of travel)
+            if facing_right:
+                is_engine = (i == self.length - 1)  # Engine on right when going right
+            else:
+                is_engine = (i == 0)  # Engine on left when going left
+            color = COLORS['train_front'] if is_engine else COLORS['train']
             body_rect = pygame.Rect(segment_x + 2, y + 5, TILE_SIZE - 4, TILE_SIZE - 10)
             pygame.draw.rect(screen, color, body_rect, border_radius=3)
-            if i > 0:
+            if is_engine:
+                # Engine front with headlight
+                pygame.draw.rect(screen, (50, 50, 60), (segment_x + 5, y + 15, TILE_SIZE - 10, 20))
+                if facing_right:
+                    pygame.draw.circle(screen, (255, 255, 100), (int(segment_x + TILE_SIZE - 10), int(y + 25)), 5)
+                else:
+                    pygame.draw.circle(screen, (255, 255, 100), (int(segment_x + 10), int(y + 25)), 5)
+            else:
+                # Passenger car windows
                 for wx in range(2):
                     pygame.draw.rect(screen, (200, 220, 255), (segment_x + 8 + wx * 18, y + 10, 14, 15), border_radius=2)
-            else:
-                pygame.draw.rect(screen, (50, 50, 60), (segment_x + 5, y + 15, TILE_SIZE - 10, 20))
-                pygame.draw.circle(screen, (255, 255, 100), (int(segment_x + 15), int(y + 25)), 5)
             pygame.draw.circle(screen, (40, 40, 40), (int(segment_x + 12), int(y + TILE_SIZE - 5)), 5)
             pygame.draw.circle(screen, (40, 40, 40), (int(segment_x + TILE_SIZE - 12), int(y + TILE_SIZE - 5)), 5)
             if i < self.length - 1:
@@ -406,7 +490,7 @@ class Lane:
         self.grass_variant = random.choice([True, False])
         self.warning_active = False
         self.train_timer = 0
-        self.warning_time = 1.5
+        self.warning_time = 2.0  # Default warning time
         self.train = None
         self._generate_content()
     
@@ -414,6 +498,9 @@ class Lane:
         if self.type == LANE_GRASS:
             num_trees = random.randint(0, 4)
             positions = random.sample(range(self.world_width), min(num_trees, self.world_width))
+            # Don't spawn trees in starting area (y >= -2) near the player spawn point (x=7,8,9)
+            if self.y >= -2:
+                positions = [p for p in positions if p < 6 or p > 10]
             self.obstacles = positions
             if random.random() < 0.1:
                 available = [i for i in range(self.world_width) if i not in self.obstacles]
@@ -436,11 +523,14 @@ class Lane:
             for i in range(num_logs):
                 start_x = i * TILE_SIZE * 4 + random.randint(0, 2) * TILE_SIZE
                 is_lily = random.random() < 0.3
-                length = 1 if is_lily else random.randint(2, 4)
+                length = 1 if is_lily else random.randint(2, 3)  # Max 3 tiles wide
                 self.logs.append(Log(start_x, self.y, speed, length, is_lily))
         
         elif self.type == LANE_TRAIN:
-            self.train_timer = random.uniform(2, 5)
+            self.train_timer = random.uniform(3, 7)  # Time until warning starts
+            self.warning_time = 2.0  # Warning lights flash for 2 seconds BEFORE train arrives
+            self.warning_active = False
+            self.train = None
     
     def has_obstacle_at(self, x):
         return x in self.obstacles
@@ -463,18 +553,22 @@ class Lane:
                 if self.train_timer < self.warning_time:
                     self.warning_active = True
                 if self.train_timer <= 0:
-                    speed = 8 * random.choice([-1, 1])
+                    speed = 10 * random.choice([-1, 1])  # Fast train!
                     start_x = -TILE_SIZE * 7 if speed > 0 else self.world_width * TILE_SIZE + TILE_SIZE
                     self.train = Vehicle(start_x, self.y, speed, 'train')
-                    self.warning_active = False
+                    # Warning stays active while train is present
             else:
                 self.train.update(dt, self.world_width)
+                # Keep warning active while train is visible
+                self.warning_active = True
                 if self.train.speed > 0 and self.train.x > self.world_width * TILE_SIZE + TILE_SIZE * 7:
                     self.train = None
-                    self.train_timer = random.uniform(3, 8)
+                    self.train_timer = random.uniform(4, 10)
+                    self.warning_active = False  # Turn off warning after train passes
                 elif self.train.speed < 0 and self.train.x < -TILE_SIZE * 7:
                     self.train = None
-                    self.train_timer = random.uniform(3, 8)
+                    self.train_timer = random.uniform(4, 10)
+                    self.warning_active = False  # Turn off warning after train passes
     
     def check_collision(self, player):
         if not player.alive:
@@ -544,28 +638,93 @@ class Lane:
         if self.type == LANE_TRAIN and self.train:
             self.train.draw(screen, camera_y)
     
+    
     def _draw_train_signal(self, screen, x, y):
-        """Crossy Road style signal - simple pole with blinking light"""
-        post_x = x + 18
-        post_top = y - 30
-        post_bottom = y + TILE_SIZE - 8
-        pygame.draw.rect(screen, (45, 45, 50), (post_x, post_top, 5, post_bottom - post_top))
-        
-        light_x = post_x + 2
-        light_y = post_top - 4
-        blink = (pygame.time.get_ticks() // 300) % 2
-        
-        if self.warning_active:
-            if blink:
-                glow_surf = pygame.Surface((20, 20), pygame.SRCALPHA)
-                pygame.draw.circle(glow_surf, (255, 0, 0, 100), (10, 10), 10)
-                screen.blit(glow_surf, (light_x - 9, light_y - 9))
-                pygame.draw.circle(screen, (255, 20, 20), (int(light_x), int(light_y)), 6)
-                pygame.draw.circle(screen, (255, 150, 150), (int(light_x - 1), int(light_y - 1)), 2)
+            """Railroad crossing signal: extremely noticeable bright-red warning when a train is imminent/passing.
+
+            Based on the Crossy Road behavior: rail lights turn red (casting a red glow) when a train is about to pass,
+            and remain red while the train is passing. 
+            """
+            # Anchor: lane y is the top of the track tile.
+            base_y = y + TILE_SIZE - 6
+
+            # Tall post (slightly offset in from the edge so it doesn't clip)
+            post_x = x + 18
+            post_top = y - 62
+
+            # Foundation block
+            pygame.draw.rect(screen, (55, 55, 60), (post_x - 9, base_y - 6, 22, 12), border_radius=3)
+
+            # Post shaft (metal)
+            pygame.draw.rect(screen, (135, 135, 145), (post_x, post_top, 6, base_y - post_top), border_radius=2)
+            pygame.draw.rect(screen, (95, 95, 105), (post_x, post_top, 2, base_y - post_top))  # side shade
+
+            # Crossbuck-ish sign (simple X plate)
+            sign_y = post_top + 14
+            sign_w = 34
+            sign_h = 14
+            sign_x = post_x - 14
+            pygame.draw.rect(screen, (235, 235, 235), (sign_x, sign_y, sign_w, sign_h), border_radius=3)
+            pygame.draw.rect(screen, (170, 170, 170), (sign_x, sign_y, sign_w, sign_h), 2, border_radius=3)
+            # Red X stripes
+            pygame.draw.line(screen, (200, 50, 50), (sign_x + 6, sign_y + 3), (sign_x + sign_w - 6, sign_y + sign_h - 3), 4)
+            pygame.draw.line(screen, (200, 50, 50), (sign_x + sign_w - 6, sign_y + 3), (sign_x + 6, sign_y + sign_h - 3), 4)
+
+            # Light housing box (bigger than before)
+            box_y = sign_y + 18
+            box_x = post_x - 16
+            box_w = 38
+            box_h = 22
+            pygame.draw.rect(screen, (35, 35, 40), (box_x, box_y, box_w, box_h), border_radius=4)
+            pygame.draw.rect(screen, (70, 70, 80), (box_x, box_y, box_w, box_h), 2, border_radius=4)
+
+            # Dual lights like a railroad crossing (alternate blink)
+            left_c = (box_x + 12, box_y + 11)
+            right_c = (box_x + 26, box_y + 11)
+            r_outer = 8
+
+            # Blink phase (faster, grabs attention)
+            phase = (pygame.time.get_ticks() // 140) % 2
+
+            # Determine "active" state:
+            # - warning_active True means train imminent OR passing (handled in lane update)
+            active = bool(getattr(self, "warning_active", False))
+
+            # Off-state light (dark lens but still visible)
+            def draw_lens(center, on=False, primary=False):
+                cx, cy = center
+                if on:
+                    # Huge glow that spills onto the terrain
+                    glow = pygame.Surface((120, 120), pygame.SRCALPHA)
+                    # layered glow rings
+                    pygame.draw.circle(glow, (255, 0, 0, 70), (60, 60), 44)
+                    pygame.draw.circle(glow, (255, 0, 0, 120), (60, 60), 30)
+                    pygame.draw.circle(glow, (255, 80, 80, 170), (60, 60), 18)
+                    screen.blit(glow, (cx - 60, cy - 60))
+
+                    # Bright red lens
+                    pygame.draw.circle(screen, (255, 35, 35), (cx, cy), r_outer)
+                    pygame.draw.circle(screen, (255, 230, 230), (cx - 2, cy - 2), 3)
+                    pygame.draw.circle(screen, (110, 0, 0), (cx, cy), r_outer, 2)
+                else:
+                    # Dim red lens (so the player sees it's a signal even when idle)
+                    pygame.draw.circle(screen, (80, 20, 20), (cx, cy), r_outer)
+                    pygame.draw.circle(screen, (45, 10, 10), (cx, cy), r_outer, 2)
+
+            if active:
+                # Alternate lights; when a train is passing we keep them flashing too (very noticeable).
+                left_on = (phase == 0)
+                right_on = not left_on
+                draw_lens(left_c, on=left_on)
+                draw_lens(right_c, on=right_on)
+
+                # Extra attention cue: red wash near the base of the post
+                wash = pygame.Surface((80, 30), pygame.SRCALPHA)
+                pygame.draw.ellipse(wash, (255, 0, 0, 55), (0, 0, 80, 30))
+                screen.blit(wash, (post_x - 38, base_y - 22))
             else:
-                pygame.draw.circle(screen, (120, 30, 30), (int(light_x), int(light_y)), 6)
-        else:
-            pygame.draw.circle(screen, (50, 25, 25), (int(light_x), int(light_y)), 6)
+                draw_lens(left_c, on=False)
+                draw_lens(right_c, on=False)
     
     def _draw_tree(self, screen, x, y):
         trunk_rect = pygame.Rect(x + 18, y + 25, 14, 25)
@@ -609,6 +768,10 @@ class Eagle:
     def update(self, dt, player):
         if not self.active:
             return False
+        # Always chase the player's current position
+        self.target_x = player.pixel_x
+        self.target_y = player.pixel_y
+
         self.wing_phase += dt * 10
         if self.phase == 0:
             dx = self.target_x - self.x
@@ -618,7 +781,7 @@ class Eagle:
                 self.phase = 1
                 return True
             else:
-                speed = 5
+                speed = 420 * dt  # pixels/sec
                 self.x += (dx / dist) * speed
                 self.y += (dy / dist) * speed
         elif self.phase == 2:
@@ -657,16 +820,17 @@ class World:
     def _create_lane(self, y):
         if y >= 0:
             return Lane(y, LANE_GRASS, self.width)
+        # Spawn distribution (infinite/procedural lanes):
+        # grass: 40%, roads: 40%, water: 12%, trains: 8%
         roll = random.random()
-        if roll < 0.3:
-            return Lane(y, LANE_GRASS, self.width)
-        elif roll < 0.6:
-            return Lane(y, LANE_ROAD, self.width)
-        elif roll < 0.85:
-            return Lane(y, LANE_WATER, self.width)
+        if roll < 0.40:
+            return Lane(y, LANE_GRASS, self.width)  # 40% grass
+        elif roll < 0.80:
+            return Lane(y, LANE_ROAD, self.width)   # 40% road
+        elif roll < 0.92:
+            return Lane(y, LANE_WATER, self.width)  # 12% water
         else:
-            return Lane(y, LANE_TRAIN, self.width)
-    
+            return Lane(y, LANE_TRAIN, self.width)  # 8% train
     def get_lane(self, y):
         if y not in self.lanes:
             self._generate_lanes(y - 10, y + 10)
@@ -721,6 +885,9 @@ class Game:
         self.eagle = Eagle()
         self.camera_y = 0
         self.target_camera_y = 0
+        # Auto-scrolling camera (world drifts upward even if you stand still)
+        self.auto_camera_y = 0
+        self.auto_scroll_speed = TILE_SIZE * 0.55  # pixels/sec; tweak for difficulty
         self.score = 0
         self.max_y_reached = 0
         self.coins_collected = 0
@@ -773,12 +940,19 @@ class Game:
                 self.player.die('splash', self.sound_manager)
                 self.game_over = True
         
-        if self.player.alive and self.player.idle_time > 5:
-            self.eagle.activate(self.player.pixel_x, self.player.pixel_y)
-        
+        # Eagle only becomes a threat once the auto-scrolling camera leaves you behind.
+        # (In Crossy Road the eagle punishes falling behind the scroll, not just idling.)
+        projected_camera_y = self.camera_y - self.auto_scroll_speed * dt
+        player_screen_y = self.player.pixel_y - projected_camera_y  # where the player would appear on screen
+
+        if self.player.alive and (player_screen_y > SCREEN_HEIGHT + TILE_SIZE * 2):
+            if not self.eagle.active:
+                self.eagle.activate(self.player.pixel_x, self.player.pixel_y)
+
         if self.eagle.active:
             caught = self.eagle.update(dt, self.player)
-            if caught:
+            # Only end the game if the scroll is *significantly* past the player (well off-screen).
+            if caught and (player_screen_y > SCREEN_HEIGHT + TILE_SIZE * 6):
                 self.player.die('eagle', self.sound_manager)
                 self.eagle.phase = 2
                 self.game_over = True
@@ -788,8 +962,16 @@ class Game:
             self.score += current_y - self.max_y_reached
             self.max_y_reached = current_y
         
-        self.target_camera_y = self.player.pixel_y - SCREEN_HEIGHT * 0.6
-        self.camera_y += (self.target_camera_y - self.camera_y) * 0.1
+        # Auto-scroll the camera upward (toward negative world Y)
+        self.auto_camera_y -= self.auto_scroll_speed * dt
+
+        # Follow the player, but never allow the camera to fall behind the auto-scroll
+        follow_target = self.player.pixel_y - SCREEN_HEIGHT * 0.6
+        self.target_camera_y = min(self.auto_camera_y, follow_target)
+
+        # Smooth camera motion
+        self.camera_y += (self.target_camera_y - self.camera_y) * 0.12
+
     
     def draw(self):
         self.screen.fill((135, 206, 235))
