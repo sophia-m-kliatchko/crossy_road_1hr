@@ -219,88 +219,37 @@ class Player:
         pygame.draw.ellipse(shadow_surf, (0, 0, 0, 50), (0, 0, TILE_SIZE - 10, 10))
         screen.blit(shadow_surf, (screen_x + 5, screen_y + TILE_SIZE - 12))
         
-        # Draw chicken based on direction (0=up, 1=right, 2=down, 3=left)
-        if self.direction == 0:  # Facing up (forward) - back view
-            # Body
-            body_rect = pygame.Rect(screen_x + 10, draw_y + 15, 30, 30)
-            pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=5)
-            pygame.draw.rect(screen, (200, 200, 200), body_rect, 2, border_radius=5)
-            # Head
-            head_rect = pygame.Rect(screen_x + 15, draw_y + 5, 20, 18)
-            pygame.draw.rect(screen, COLORS['chicken_body'], head_rect, border_radius=3)
-            # Comb on top
-            comb_points = [(screen_x + 20, draw_y + 5), (screen_x + 25, draw_y),
-                           (screen_x + 30, draw_y + 5), (screen_x + 35, draw_y),
-                           (screen_x + 35, draw_y + 8), (screen_x + 20, draw_y + 8)]
-            pygame.draw.polygon(screen, COLORS['chicken_comb'], comb_points)
-            # Tail feathers at back
-            pygame.draw.ellipse(screen, (220, 220, 220), (screen_x + 15, draw_y + 38, 20, 10))
-            
-        elif self.direction == 1:  # Facing right
-            # Body
-            body_rect = pygame.Rect(screen_x + 8, draw_y + 18, 30, 25)
-            pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=5)
-            pygame.draw.rect(screen, (200, 200, 200), body_rect, 2, border_radius=5)
-            # Head (to the right)
-            head_rect = pygame.Rect(screen_x + 30, draw_y + 12, 18, 18)
-            pygame.draw.rect(screen, COLORS['chicken_body'], head_rect, border_radius=8)
-            # Comb on top of head
-            comb_points = [(screen_x + 32, draw_y + 12), (screen_x + 36, draw_y + 6),
-                           (screen_x + 40, draw_y + 12), (screen_x + 44, draw_y + 6),
-                           (screen_x + 44, draw_y + 14), (screen_x + 32, draw_y + 14)]
-            pygame.draw.polygon(screen, COLORS['chicken_comb'], comb_points)
-            # Beak pointing right
-            beak_points = [(screen_x + 48, draw_y + 18), (screen_x + 48, draw_y + 24), (screen_x + 55, draw_y + 21)]
-            pygame.draw.polygon(screen, COLORS['chicken_beak'], beak_points)
-            # Eye
-            pygame.draw.circle(screen, (0, 0, 0), (screen_x + 42, draw_y + 18), 3)
-            pygame.draw.circle(screen, (255, 255, 255), (screen_x + 43, draw_y + 17), 1)
-            # Tail feathers on left
-            pygame.draw.ellipse(screen, (220, 220, 220), (screen_x + 2, draw_y + 22, 12, 18))
-            
-        elif self.direction == 2:  # Facing down (backward) - front view
-            # Body
-            body_rect = pygame.Rect(screen_x + 10, draw_y + 15, 30, 30)
-            pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=5)
-            pygame.draw.rect(screen, (200, 200, 200), body_rect, 2, border_radius=5)
-            # Head
-            head_rect = pygame.Rect(screen_x + 15, draw_y + 5, 20, 18)
-            pygame.draw.rect(screen, COLORS['chicken_body'], head_rect, border_radius=3)
-            # Comb on top
-            comb_points = [(screen_x + 20, draw_y + 5), (screen_x + 25, draw_y),
-                           (screen_x + 30, draw_y + 5), (screen_x + 35, draw_y),
-                           (screen_x + 35, draw_y + 8), (screen_x + 20, draw_y + 8)]
-            pygame.draw.polygon(screen, COLORS['chicken_comb'], comb_points)
-            # Beak pointing down/toward viewer
-            beak_points = [(screen_x + 22, draw_y + 18), (screen_x + 28, draw_y + 18), (screen_x + 25, draw_y + 24)]
-            pygame.draw.polygon(screen, COLORS['chicken_beak'], beak_points)
-            # Eyes
-            pygame.draw.circle(screen, (0, 0, 0), (screen_x + 20, draw_y + 12), 3)
-            pygame.draw.circle(screen, (0, 0, 0), (screen_x + 30, draw_y + 12), 3)
-            pygame.draw.circle(screen, (255, 255, 255), (screen_x + 21, draw_y + 11), 1)
-            pygame.draw.circle(screen, (255, 255, 255), (screen_x + 31, draw_y + 11), 1)
-            
-        else:  # direction == 3, Facing left
-            # Body
-            body_rect = pygame.Rect(screen_x + 12, draw_y + 18, 30, 25)
-            pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=5)
-            pygame.draw.rect(screen, (200, 200, 200), body_rect, 2, border_radius=5)
-            # Head (to the left)
-            head_rect = pygame.Rect(screen_x + 2, draw_y + 12, 18, 18)
-            pygame.draw.rect(screen, COLORS['chicken_body'], head_rect, border_radius=8)
-            # Comb on top of head
-            comb_points = [(screen_x + 6, draw_y + 12), (screen_x + 10, draw_y + 6),
-                           (screen_x + 14, draw_y + 12), (screen_x + 18, draw_y + 6),
-                           (screen_x + 18, draw_y + 14), (screen_x + 6, draw_y + 14)]
-            pygame.draw.polygon(screen, COLORS['chicken_comb'], comb_points)
-            # Beak pointing left
-            beak_points = [(screen_x + 2, draw_y + 18), (screen_x + 2, draw_y + 24), (screen_x - 5, draw_y + 21)]
-            pygame.draw.polygon(screen, COLORS['chicken_beak'], beak_points)
-            # Eye
-            pygame.draw.circle(screen, (0, 0, 0), (screen_x + 8, draw_y + 18), 3)
-            pygame.draw.circle(screen, (255, 255, 255), (screen_x + 7, draw_y + 17), 1)
-            # Tail feathers on right
-            pygame.draw.ellipse(screen, (220, 220, 220), (screen_x + 36, draw_y + 22, 12, 18))
+        # Body
+        body_rect = pygame.Rect(screen_x + 10, draw_y + 15, 30, 30)
+        pygame.draw.rect(screen, COLORS['chicken_body'], body_rect, border_radius=5)
+        pygame.draw.rect(screen, (200, 200, 200), body_rect, 2, border_radius=5)
+        
+        # Head
+        head_rect = pygame.Rect(screen_x + 15, draw_y + 5, 20, 18)
+        pygame.draw.rect(screen, COLORS['chicken_body'], head_rect, border_radius=3)
+        
+        # Comb
+        comb_points = [(screen_x + 20, draw_y + 5), (screen_x + 25, draw_y),
+                       (screen_x + 30, draw_y + 5), (screen_x + 35, draw_y),
+                       (screen_x + 35, draw_y + 8), (screen_x + 20, draw_y + 8)]
+        pygame.draw.polygon(screen, COLORS['chicken_comb'], comb_points)
+        
+        # Beak
+        if self.direction == 0:
+            beak_points = [(screen_x + 23, draw_y + 8), (screen_x + 27, draw_y + 8), (screen_x + 25, draw_y + 3)]
+        elif self.direction == 1:
+            beak_points = [(screen_x + 35, draw_y + 10), (screen_x + 35, draw_y + 14), (screen_x + 42, draw_y + 12)]
+        elif self.direction == 2:
+            beak_points = [(screen_x + 23, draw_y + 20), (screen_x + 27, draw_y + 20), (screen_x + 25, draw_y + 25)]
+        else:
+            beak_points = [(screen_x + 15, draw_y + 10), (screen_x + 15, draw_y + 14), (screen_x + 8, draw_y + 12)]
+        pygame.draw.polygon(screen, COLORS['chicken_beak'], beak_points)
+        
+        # Eyes
+        pygame.draw.circle(screen, (0, 0, 0), (screen_x + 18, draw_y + 12), 3)
+        pygame.draw.circle(screen, (0, 0, 0), (screen_x + 32, draw_y + 12), 3)
+        pygame.draw.circle(screen, (255, 255, 255), (screen_x + 19, draw_y + 11), 1)
+        pygame.draw.circle(screen, (255, 255, 255), (screen_x + 33, draw_y + 11), 1)
     
     def _draw_death(self, screen, screen_x, screen_y):
         if self.death_type == 'squash':
@@ -363,80 +312,42 @@ class Vehicle:
             self._draw_train(screen, self.x, screen_y)
     
     def _draw_car(self, screen, x, y):
-        facing_right = self.speed > 0
         shadow = pygame.Surface((TILE_SIZE - 10, 10), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow, (0, 0, 0, 40), (0, 0, TILE_SIZE - 10, 10))
         screen.blit(shadow, (x + 5, y + TILE_SIZE - 8))
         body_rect = pygame.Rect(x + 5, y + 12, TILE_SIZE - 10, TILE_SIZE - 20)
         pygame.draw.rect(screen, self.color, body_rect, border_radius=5)
+        roof_rect = pygame.Rect(x + 12, y + 8, TILE_SIZE - 24, 15)
         darker_color = tuple(max(0, c - 40) for c in self.color)
-        # Roof positioned based on direction (offset toward back)
-        if facing_right:
-            roof_rect = pygame.Rect(x + 8, y + 8, TILE_SIZE - 20, 15)
-            pygame.draw.rect(screen, darker_color, roof_rect, border_radius=3)
-            pygame.draw.rect(screen, (150, 200, 255), (x + 10, y + 10, TILE_SIZE - 24, 10), border_radius=2)
-            # Headlights on right side
-            pygame.draw.circle(screen, (255, 255, 200), (int(x + TILE_SIZE - 8), int(y + 18)), 3)
-            pygame.draw.circle(screen, (255, 255, 200), (int(x + TILE_SIZE - 8), int(y + 28)), 3)
-        else:
-            roof_rect = pygame.Rect(x + 12, y + 8, TILE_SIZE - 20, 15)
-            pygame.draw.rect(screen, darker_color, roof_rect, border_radius=3)
-            pygame.draw.rect(screen, (150, 200, 255), (x + 14, y + 10, TILE_SIZE - 24, 10), border_radius=2)
-            # Headlights on left side
-            pygame.draw.circle(screen, (255, 255, 200), (int(x + 8), int(y + 18)), 3)
-            pygame.draw.circle(screen, (255, 255, 200), (int(x + 8), int(y + 28)), 3)
+        pygame.draw.rect(screen, darker_color, roof_rect, border_radius=3)
+        pygame.draw.rect(screen, (150, 200, 255), (x + 14, y + 10, TILE_SIZE - 28, 10), border_radius=2)
         pygame.draw.circle(screen, (30, 30, 30), (int(x + 12), int(y + TILE_SIZE - 8)), 6)
         pygame.draw.circle(screen, (30, 30, 30), (int(x + TILE_SIZE - 12), int(y + TILE_SIZE - 8)), 6)
     
     def _draw_truck(self, screen, x, y):
-        facing_right = self.speed > 0
         shadow = pygame.Surface((TILE_SIZE * 2 - 10, 10), pygame.SRCALPHA)
         pygame.draw.ellipse(shadow, (0, 0, 0, 40), (0, 0, TILE_SIZE * 2 - 10, 10))
         screen.blit(shadow, (x + 5, y + TILE_SIZE - 8))
-        if facing_right:
-            # Cargo on left, cab on right
-            cargo_rect = pygame.Rect(x + 5, y + 8, TILE_SIZE + 20, TILE_SIZE - 15)
-            pygame.draw.rect(screen, self.color, cargo_rect, border_radius=3)
-            cab_rect = pygame.Rect(x + TILE_SIZE + 25, y + 12, 25, TILE_SIZE - 20)
-            pygame.draw.rect(screen, (80, 80, 90), cab_rect, border_radius=3)
-            pygame.draw.rect(screen, (150, 200, 255), (x + TILE_SIZE + 28, y + 14, 19, 12), border_radius=2)
-            # Headlights
-            pygame.draw.circle(screen, (255, 255, 200), (int(x + TILE_SIZE * 2 - 8), int(y + 28)), 3)
-        else:
-            # Cab on left, cargo on right
-            cab_rect = pygame.Rect(x + 5, y + 12, 25, TILE_SIZE - 20)
-            pygame.draw.rect(screen, (80, 80, 90), cab_rect, border_radius=3)
-            pygame.draw.rect(screen, (150, 200, 255), (x + 8, y + 14, 19, 12), border_radius=2)
-            cargo_rect = pygame.Rect(x + 30, y + 8, TILE_SIZE + 20, TILE_SIZE - 15)
-            pygame.draw.rect(screen, self.color, cargo_rect, border_radius=3)
-            # Headlights
-            pygame.draw.circle(screen, (255, 255, 200), (int(x + 8), int(y + 28)), 3)
+        cargo_rect = pygame.Rect(x + 5, y + 8, TILE_SIZE + 20, TILE_SIZE - 15)
+        pygame.draw.rect(screen, self.color, cargo_rect, border_radius=3)
+        cab_rect = pygame.Rect(x + TILE_SIZE + 25, y + 12, 25, TILE_SIZE - 20)
+        pygame.draw.rect(screen, (80, 80, 90), cab_rect, border_radius=3)
+        pygame.draw.rect(screen, (150, 200, 255), (x + TILE_SIZE + 28, y + 14, 19, 12), border_radius=2)
         for wx in [15, 45, TILE_SIZE + 35]:
             pygame.draw.circle(screen, (30, 30, 30), (int(x + wx), int(y + TILE_SIZE - 8)), 6)
     
     def _draw_train(self, screen, x, y):
-        facing_right = self.speed > 0
         for i in range(self.length):
             segment_x = x + i * TILE_SIZE
-            # Engine is at front (first segment in direction of travel)
-            if facing_right:
-                is_engine = (i == self.length - 1)  # Engine on right when going right
-            else:
-                is_engine = (i == 0)  # Engine on left when going left
-            color = COLORS['train_front'] if is_engine else COLORS['train']
+            color = COLORS['train_front'] if i == 0 else COLORS['train']
             body_rect = pygame.Rect(segment_x + 2, y + 5, TILE_SIZE - 4, TILE_SIZE - 10)
             pygame.draw.rect(screen, color, body_rect, border_radius=3)
-            if is_engine:
-                # Engine front with headlight
-                pygame.draw.rect(screen, (50, 50, 60), (segment_x + 5, y + 15, TILE_SIZE - 10, 20))
-                if facing_right:
-                    pygame.draw.circle(screen, (255, 255, 100), (int(segment_x + TILE_SIZE - 10), int(y + 25)), 5)
-                else:
-                    pygame.draw.circle(screen, (255, 255, 100), (int(segment_x + 10), int(y + 25)), 5)
-            else:
-                # Passenger car windows
+            if i > 0:
                 for wx in range(2):
                     pygame.draw.rect(screen, (200, 220, 255), (segment_x + 8 + wx * 18, y + 10, 14, 15), border_radius=2)
+            else:
+                pygame.draw.rect(screen, (50, 50, 60), (segment_x + 5, y + 15, TILE_SIZE - 10, 20))
+                pygame.draw.circle(screen, (255, 255, 100), (int(segment_x + 15), int(y + 25)), 5)
             pygame.draw.circle(screen, (40, 40, 40), (int(segment_x + 12), int(y + TILE_SIZE - 5)), 5)
             pygame.draw.circle(screen, (40, 40, 40), (int(segment_x + TILE_SIZE - 12), int(y + TILE_SIZE - 5)), 5)
             if i < self.length - 1:
@@ -525,7 +436,7 @@ class Lane:
             for i in range(num_logs):
                 start_x = i * TILE_SIZE * 4 + random.randint(0, 2) * TILE_SIZE
                 is_lily = random.random() < 0.3
-                length = 1 if is_lily else random.randint(2, 3)  # Max 3 tiles wide
+                length = 1 if is_lily else random.randint(2, 4)
                 self.logs.append(Log(start_x, self.y, speed, length, is_lily))
         
         elif self.type == LANE_TRAIN:
@@ -746,16 +657,15 @@ class World:
     def _create_lane(self, y):
         if y >= 0:
             return Lane(y, LANE_GRASS, self.width)
-        # More grass and roads, fewer water, even fewer trains
         roll = random.random()
-        if roll < 0.40:
-            return Lane(y, LANE_GRASS, self.width)  # 40% grass
-        elif roll < 0.75:
-            return Lane(y, LANE_ROAD, self.width)   # 35% road
-        elif roll < 0.93:
-            return Lane(y, LANE_WATER, self.width)  # 18% water
+        if roll < 0.3:
+            return Lane(y, LANE_GRASS, self.width)
+        elif roll < 0.6:
+            return Lane(y, LANE_ROAD, self.width)
+        elif roll < 0.85:
+            return Lane(y, LANE_WATER, self.width)
         else:
-            return Lane(y, LANE_TRAIN, self.width)  # 7% train
+            return Lane(y, LANE_TRAIN, self.width)
     
     def get_lane(self, y):
         if y not in self.lanes:
