@@ -1,1 +1,59 @@
+Goals and Strategy:
+    For this project, I set a timer for 1hour and stopped working at exactly that time, taking the
+    latest version from the prompts made in that one hour period. I used Claude Opus 4.5 for the majority 
+    of the work, ran out of data, and switched to ChatGPT and Github Copilot for final touches. I went into
+    it planning to give the program as much documentation to work with as possible and to be clear and direct
+    about any edits I want in the game, making sure to prioritize the features that were most important to me. 
+
+    This is my result.
+
+Prompts:
+    1. https://crossyroad.fandom.com/wiki/Crossy_Road_Wiki
+    read this wiki article and watch all videos. This game is based on the classic game Frogger:
+    https://frogger.fandom.com/wiki/Frogger_(video_game)
+    read this article as well. Write me a code file that works in vs code in python that approximates 
+    Crossy Road as closely as possible. Focus on gameplay features such as jumping, logs, scrolling 
+    screen, logs, cars, etc. Visuals can be 2D but should approximate the aesthetic of the original Crossy Road. 
+    Give me a complete code script that will run and be Crossy Road.
+
+    2. modify the code to add the train signals, make logs move at variable speeds (with the range starting a 
+    decent bit slower than the logs are currently moving and ending barely faster than the current log speed)
+    
+    3. make the train signal resemble the crossy road one, and make the logs and cars both move at variable 
+    speeds and different directions on the road/track. note that every lane must have a consistent speed and
+    direction, but the lanes should vary
+
+    4. AND, make the code into a file that I can copy/paste and insert into my vs code file
+
+    5. 1: modify the train and car graphics to reflect the direction they're going in (it should 
+    look like it's facing the right direction), and make the logs at most three jumps wide. 
+    2: turn the chicken with the direction of motion
+    3: there should be far more grass and cars than logs, and there should be more logs than trains.
+
+    6. I want the chicken to still look square when turning to the side, don't spawn trees immediately in the 
+    way of the chicken at the start of the game, and make sure the train signals are visible and stand out 
+    from the environment -- I can't see them at all. The train signal should light up and ring for a short 
+    while BEFORE a train arrives. 
+    https://crossyroad.fandom.com/wiki/Train
+    read this documentation and try to replicate this mechanism (don't worry about 3D aesthetics or super complex graphics)
+
+----- At this point, Claude ran out of prompts and I switched to chatGPT ---------------
+    *I gave chatGPT my most recent file of the game with the following prompt
+    7. initial prompt: Write me a code file that works in vs code in python that approximates Crossy Road as closely as 
+    possible. Focus on gameplay features such as jumping, logs, scrolling screen, logs, cars, etc. Visuals can be 2D but 
+    should approximate the aesthetic of the original Crossy Road. Give me a complete code script that will run and be Crossy 
+    Road. I am writing a crossy road clone, change the spawn distribution in the file to be: grass: 40% roads: 40% water 12% 
+    trains 8%
+
+    8. make the game scroll even if you aren't moving, and have the eagle only end the game when the game scrolls significantly 
+    past the chicken. modify the chicken code to look a little more like crossy road while maintaining the style. Have the train 
+    signals NOTICEABLY light up red to warn about trains.
+
+    9. Modify the chicken avatar to look much more like crossy road. Read the following websites to assist you: 
+    http://crossyroad.fandom.com/wiki/Chicken 
+    https://crossyroad.fandom.com/wiki/Train
+    also, Redraw the train signals entirely to LIGHT UP BRIGHT RED when a train is soon to arrive (and is passing 
+    by) and be much more noticeable to the player's eye.
+
+------- At this point my time ran out and the final version was "complete" ---------------
 
